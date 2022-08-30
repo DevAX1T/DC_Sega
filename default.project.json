@@ -1,0 +1,52 @@
+{
+  "name": "DC_Sega",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$path": "src/shared",
+      "Animations": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true,
+        "Player": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        },
+        "Object": {
+          "$className": "Folder",
+          "$ignoreUnknownInstances": true
+        }
+      },
+      "UI": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true
+      },
+      "Accessories": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true
+      },
+      "$ignoreUnknownInstances": true
+        
+    },
+
+    "ServerScriptService": {
+      "$path": "src/server"
+    },
+
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "$path": "src/client"
+      }
+    },
+    "ServerStorage": {
+      "Secure": {
+        "$path": "src/secure"
+      },
+      "Particles": {
+        "$className": "Folder",
+        "$ignoreUnknownInstances": true
+      },
+      "$ignoreUnknownInstances": true
+    }
+  }
+}
