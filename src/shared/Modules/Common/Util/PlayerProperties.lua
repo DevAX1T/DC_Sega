@@ -1,5 +1,9 @@
 local RunService = game:GetService("RunService")
 
+local Signal = require(script.Parent.Parent.Signal)
+
+local onChange = Signal.new()
+
 local PlayerProperties = {}
 
 -- todo: add descriptions for all functions
@@ -55,7 +59,7 @@ function PlayerProperties:GetProperty(player: Player, key: string): any
 	return property.Value
 end
 
-function PlayerProperties:SetProperty(player: Player, key: string, value: any)
+function PlayerProperties:SetProperty(player: Player, key: string, newValue: any)
 	if not RunService:IsServer() then
 		return error("'SetProperty' can only be called from the server")
 	end
@@ -69,7 +73,25 @@ function PlayerProperties:SetProperty(player: Player, key: string, value: any)
 
 	local property = folder:FindFirstChild(key)
 	if not property then return end
-	property.Value = value
+	property.Value = newValue
+
+	onChange:Fire(player, key, newValue)
+end
+
+--[[
+	PlayerProperties:GetPropertyChangedSignal('ClientReady'):Connect(function(player, oldValue, newValue)
+
+	end)
+]]
+function PlayerProperties:GetPropertyChangedSignal(property: string)
+	local propertyChangedSignal = Signal.new()
+
+	onChange:Connect(function(player, _property, newValue)
+		if _property == property then
+			propertyChangedSignal:Fire(player, newValue)
+		end
+	end)
+	return propertyChangedSignal
 end
 
 return PlayerProperties

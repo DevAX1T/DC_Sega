@@ -12,6 +12,13 @@ local DESTRUCTORS = {
 	["Instance"] = function(item)
 		item:Destroy()
 	end;
+	['table'] = function(item)
+		if item.Disconnect then
+			item:Disconnect()
+		else
+			error(FORMAT_STR:format(item), 2)
+		end
+	end
 }
 
 -- Class

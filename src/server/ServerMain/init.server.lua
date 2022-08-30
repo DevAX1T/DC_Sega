@@ -6,39 +6,38 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Common = require(ReplicatedStorage.Modules.Common)
 
 
-local Controllers = {
-    'CmdrController',
-    'AnimationController',
-    'CharacterController',
+local Managers = {
+    'CmdrManager',
+    'AnimationManager',
+    'CharacterManager',
 }
 
-local SpawnedControllers = {}
-for _, Identifier in pairs(Controllers) do
-    table.insert(SpawnedControllers, Common.Concur.spawn(function()
+local SpawnedManagers = {}
+for _, Identifier in pairs(Managers) do
+    table.insert(SpawnedManagers, Common.Concur.spawn(function()
         local Success, Error = pcall(function()
-            local Controller = require(script.Controllers[Identifier])
-            Controller.Init()
+            local Manager = require(script.Managers[Identifier])
+            Manager.Init()
         end)
         if Success then
             -- Create a new logger class or whatever and output here later
         else
-            error(('Fatal: Failed to initialize controller (%s): %s'):format(Identifier, Error))
+            error(('Fatal: Failed to initialize Manager (%s): %s'):format(Identifier, Error))
         end
     end))
 end
 
-Common.Concur.all(SpawnedControllers):OnCompleted(function(err, values)
+Common.Concur.all(SpawnedManagers):OnCompleted(function(err, values)
     for _, value in pairs(values) do
         if value[1] ~= nil then
             -- Log the error to Sentry and shutdown the server
-            print(value)
-            warn(('Fatal: Failed to initialize controllers: %s'):format(value[1]))
+            warn(('Fatal: Failed to initialize Managers: %s'):format(value[1]))
             local kickMessage = 'Server initialization error. Please join another server.'
             for _, player in pairs(Players:GetPlayers()) do
-                player:Kick(kickMessage)
+                -- player:Kick(kickMessage)
             end
             Players.PlayerAdded:Connect(function(player)
-                player:Kick(kickMessage)
+                -- player:Kick(kickMessage)
             end)
             return
         end
@@ -49,10 +48,16 @@ Common.Concur.all(SpawnedControllers):OnCompleted(function(err, values)
     ServerReady.Value = true
     ServerReady.Parent = ReplicatedStorage
 
-    -- just empty-bind this so the infinite yield warning isn't shown
+    -- Common.PlayerProperties:GetPropertyChangedSignal('ClientReady'):Connect(function(player, newValue)
+    --     print(('[%s] %s'):format(player.Name, tostring(newValue)))
+    -- end)
+    -- no reason to use this (at the moment)
     Common.Network:BindEvents({
-        ClientReady = function()
-
+        ClientReady = function(client)
+            Common.PlayerProperties:CreateProperties(client, {
+                ClientReady = { 'BoolValue', false }
+            })
+            Common.PlayerProperties:SetProperty(client, 'ClientReady', true)
         end
     })
 end)

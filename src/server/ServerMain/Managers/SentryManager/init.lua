@@ -9,8 +9,8 @@ local Sentry = require(script.Sentry)
 local Secrets = require(ServerStorage.Secure.Databases.Secrets)
 
 print(Common.Enums)
-local Controller = {}
-Controller.Sentry = Sentry.new({
+local Manager = {}
+Manager.Sentry = Sentry.new({
     Environment = 'production', -- add a 'if testing' then function
     OrganizationName = 'DC Sega',
     ProjectName = 'DCSega',
@@ -19,9 +19,9 @@ Controller.Sentry = Sentry.new({
 })
 -- TODO // a
 
-function Controller.Init()
+function Manager.Init()
     ScriptContext.Error:Connect(function(message, stack, _script)
-        Controller:LogError('server', {
+        Manager:LogError('server', {
             message = message,
             stack = stack,
             trace = if _script then _script:GetFullName() else 'No traceback'
@@ -31,14 +31,14 @@ function Controller.Init()
     LogService.MessageOut:Connect(function(message, messageType)
         if RunService:IsStudio() then return end
         if messageType == Enum.MessageType.MessageError or messageType == Enum.MessageType.MessageOutput then return end
-        local level = if messageType == Enum.MessageType.MessageInfo then Controller.Sentry.Enums.EventLevel.Info else Controller.Sentry.Enums.EventLevel.Warning
-        local event = Controller.Sentry.Event.new()
+        local level = if messageType == Enum.MessageType.MessageInfo then Manager.Sentry.Enums.EventLevel.Info else Manager.Sentry.Enums.EventLevel.Warning
+        local event = Manager.Sentry.Event.new()
             :AddTag('type', 'server')
             :AddTag('version', tostring(Common.Version))
             :SetLevel(level)
             :SetMessage(message)
 
-        Controller.Sentry:submitEvent(event)
+        Manager.Sentry:submitEvent(event)
     end)
 
     Common.Network:BindEvents({
@@ -47,7 +47,7 @@ function Controller.Init()
             if type(stack) ~= "string" then return end
 
             --! disable until proper throttling is implemented
-            -- Controller:LogError('client', {
+            -- Manager:LogError('client', {
             --     player = player,
             --     message = message,
             --     stack = stack,
@@ -56,7 +56,7 @@ function Controller.Init()
     })
 end
 
-function Controller:LogError(errorType, context)
+function Manager:LogError(errorType, context)
     if Common.IsStudio then return end
     local isFatal = string.find(string.lower(context.message), 'fatal')
     local event = self.Sentry.Event.new()
@@ -67,9 +67,10 @@ function Controller:LogError(errorType, context)
 
     if errorType == 'client' then
         if string.find(context.message, 'Failed to load sound') or string.find(context.stack, 'Failed to load sound') then return end
+        if string.find(context.message, 'CoreGui') or string.find(context.stack, 'CoreGui') then return end
         event:SetUser(context.player)
     end
     return self.Sentry:submitEvent(event)
 end
 
--- return Controller
+-- return Manager

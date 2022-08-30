@@ -21,9 +21,9 @@ local AnimationsData = {}
 local CharacterMaids = {}
 local PlayerMaids = {}
 
-local Controller = {}
+local Manager = {}
 
-function Controller.Init()
+function Manager.Init()
     Players.PlayerAdded:Connect(function(player)
         PlayerMaids[player] = Common.Maid.new()
         PlayerMaids[player]:Mark(player.CharacterAdded:Connect(function(character)
@@ -68,7 +68,7 @@ function Controller.Init()
 end
 
 -- return option 1. string, option 2. Model
-function Controller:GetAnimationPath(path): (string, ModuleScript, boolean)
+function Manager:GetAnimationPath(path): (string, ModuleScript, boolean)
     local split = string.split(path, '/')
     local animation
     local Success = pcall(function()
@@ -80,12 +80,12 @@ function Controller:GetAnimationPath(path): (string, ModuleScript, boolean)
         end
     end)
     if not Success then
-        warn('Invalid path provided - AnimationController')
+        warn('Invalid path provided - AnimationManager')
         return false, 'Invalid animation path'
     end
     return animation
 end
-function Controller:PlayAnimation(data: AnimationData)
+function Manager:PlayAnimation(data: AnimationData)
     if data.AnimationType == AnimationType.Player then
         -- get the path (Enchantress/Idle), etc
         local animation = self:GetAnimationPath(data.Animation)
@@ -101,11 +101,11 @@ function Controller:PlayAnimation(data: AnimationData)
             result[2].Completed:Connect(data.CompletedCallback)
         end
     else
-        error(('AnimationType \'%s\' passed into AnimationController, not a supported type; traceback: '):format(data.AnimationType.Name or data.AnimationType, debug.traceback()))
+        error(('AnimationType \'%s\' passed into AnimationManager, not a supported type; traceback: '):format(data.AnimationType.Name or data.AnimationType, debug.traceback()))
     end
 end
 
-function Controller:StopAnimation(data: AnimationData)
+function Manager:StopAnimation(data: AnimationData)
     if data.AnimationType == AnimationType.Player then
         local humanoid = Common:GetHumanoid(data.Player)
         if not humanoid then return end
@@ -118,13 +118,13 @@ function Controller:StopAnimation(data: AnimationData)
             end
         end
     else
-        error(('AnimationType \'%s\' passed into AnimationController, not a supported type; traceback: '):format(data.AnimationType.Name or data.AnimationType, debug.traceback()))
+        error(('AnimationType \'%s\' passed into AnimationManager, not a supported type; traceback: '):format(data.AnimationType.Name or data.AnimationType, debug.traceback()))
     end
 end
 
 -- Players.PlayerAdded:Connect(function()
 --     task.wait(7)
---     Controller:PlayAnimation({
+--     Manager:PlayAnimation({
 --         AnimationType = Common.Enums.AnimationType.Player,
 --         Player = Players.m_t3l,
 --         Animation = 'Enchantress/Shield'
@@ -132,30 +132,30 @@ end
 -- end)
 
 
-return Controller
+return Manager
 
 
 
 
--- Controller:PlayAnimation({
+-- Manager:PlayAnimation({
 --     AnimationType = Common.Enums.AnimationType.Player,
 --     Player = Players.DevAX1T,
 --     Animation = 'Shield'
 -- })
 
--- Controller:PlayAnimation({
+-- Manager:PlayAnimation({
 --     AnimationType = Common.Enums.AnimationType.Player,
 --     Player = Players.DevAX1T,
 --     Animation = 'Enchantress/Shield/ShieldHold'
 -- })
 
--- Controller:PlayAnimation({
+-- Manager:PlayAnimation({
 --     AnimationType = Common.Enums.AnimationType.NPC,
 --     NPC = workspace.Dummy,
 --     Animation = 'Enchantress/Shield'
 -- })
 
--- Controller:PlayAnimation({
+-- Manager:PlayAnimation({
 --     AnimationType = Common.Enums.AnimationType.Object,
 --     Object = workspace.Cup,
 --     Animation = 'Cups/CoffeePour' -- great examples

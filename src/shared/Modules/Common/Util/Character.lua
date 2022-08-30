@@ -9,6 +9,7 @@ local Maids = {}
 -- No signals fire when the character is removed using Character:LoadCharacter()
 local Character = {}
 Character.__index = Character
+Character.Player = nil
 Character.OnDeath = Signal.new() -- No arguments
 Character.OnSpawn = Signal.new() -- No arguments
 Character.OnRemove = Signal.new() -- No arguments
@@ -24,6 +25,7 @@ function Character.new(player: Player)
         end
     end
     local self = setmetatable({}, Character)
+    self.Player = player
     Maids[player] = Maid.new()
     local function setup(character)
         Maids[character] = Maid.new()
@@ -53,6 +55,13 @@ function Character.new(player: Player)
     return self
 end
 
+function Character:GetRoot(): BasePart
+    return self.Player.Character:WaitForChild('HumanoidRootPart')
+end
+
+function Character:GetHumanoid(): Humanoid
+    return self.Player.Character:WaitForChild('Humanoid')
+end
 -- Disconnects all maids
 function Character:Destroy()
     for _, maid in pairs(Maids) do

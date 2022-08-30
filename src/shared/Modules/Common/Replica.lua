@@ -44,7 +44,7 @@ Replica.__index = Replica
 -- Replica.OnReplicate = Signal.new() -- Used by the client to signify when a Replica provided has been replicated to the client. Two parameters: Replica name, replica type
 Replica.OnUpdate = Signal.new()
 Replica.Listeners = {} -- Dictionary indexed by thread
-Replica.ReplicatedClients = {} -- Array<Player>
+Replica.ReplicatedClients = {} :: Array<Player>
 
 function Replica.new(name: string, replica: table)
     assert(typeof(name) == 'string', 'Replica object `name` must be a string.')
@@ -115,6 +115,11 @@ if IsServer then
         for _, client in pairs(clients) do
             self:StopReplicatingToClient(client)
         end
+    end
+
+    -- Alternate way to see if a client on the list of replicated clients ( self.ReplicatedClients[client] )
+    function Replica:IsReplicatingToClient(client: Player): boolean
+        return not not self.ReplicatedClients[client]
     end
 end
 function Replica:Await()

@@ -30,7 +30,7 @@ end
 Common.Concur.all(SpawnedControllers):OnCompleted(function(err, msg)
     if err ~= nil then
         Common.Network:FireServer('ClientError', msg, debug.traceback())
-        Players.LocalPlayer:Kick('Client controller load error - please rejoin.')
+        -- Players.LocalPlayer:Kick('Client controller load error - please rejoin.')
     end
     local ClientReady = Instance.new('BoolValue')
     ClientReady.Name = 'ClientReady'

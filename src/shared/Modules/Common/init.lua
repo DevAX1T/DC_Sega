@@ -93,6 +93,7 @@ function Common:GetDatabase(...: string)
     end
 end
 
+-- this function has been superceded by PlayerProperties:GetPropertyChangedSignal('ClientReady')
 function Common:OnClientLoaded(player: Player?)
     return self.Promise.new(function(resolve)
         if self.IsClient then
@@ -112,6 +113,20 @@ function Common:OnClientLoaded(player: Player?)
         end))
     end)
 end
+
+-- Returns the appropriate module. useRuntime, if true, will return either the client or server module requested.
+function Common:GetModule(module: string, useRuntime: boolean?)
+    if useRuntime then
+        if self.IsServer then
+            return require(game:GetService('ServerScriptService').ServerMain.Modules[module])
+        else
+            return require(Players.LocalPlayer.PlayerScripts.ClientMain.Modules[module])
+        end
+    else
+        return require(script.Modules[module])
+    end
+end
+
 Common.Enums = {}
 local EnumDB = Common:GetDatabase('Enums')
 

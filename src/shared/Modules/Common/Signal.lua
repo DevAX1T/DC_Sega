@@ -61,6 +61,9 @@ end
 -- Connection class
 local Connection = {}
 Connection.__index = Connection
+Connection.__tostring = function()
+	return "SignalConnection"
+end
 
 function Connection.new(signal, fn)
 	return setmetatable({
